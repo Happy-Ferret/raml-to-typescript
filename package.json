@@ -1,0 +1,20 @@
+{
+  "name": "raml-to-typescript",
+  "version": "0.1.0",
+  "description": "RAML to TypeScript Definition Files Converter",
+  "author": "Tomasz Ducin <tomasz@ducin.it>",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ducin/raml-to-typescript.git"
+  },
+  "dependencies": {
+    "json-schema-to-typescript": "^5.2.2",
+    "raml2obj": "^5.9.0",
+    "yargs": "^10.1.1"
+  },
+  "devDependencies": {
+    "raml-examples": "^1.0.0"
+  }
+}

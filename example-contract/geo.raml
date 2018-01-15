@@ -1,0 +1,15 @@
+#%RAML 1.0
+title: Example Service
+
+/geo:
+
+  /countries:
+    description: |
+      Collection of all countries.
+    get:
+      description: Fetch collection of countries
+      responses:
+        200:
+          body:
+            application/json:
+              type: !include countries.schema.json
