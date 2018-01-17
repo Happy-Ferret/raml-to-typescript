@@ -1,15 +1,9 @@
-#!/usr/bin/env node
-
-const fs = require('fs');
 const path = require('path');
-const { promisify } = require('util');
 const { compile } = require('json-schema-to-typescript');
 const raml2obj = require('raml2obj');
 
-const argv = require('yargs').argv;
-const CONTRACT_FILE = argv.input;
-const OUTPUT_DIR = argv.output;
-const json2tsOptions = {};
+const utils = require('./utils');
+const io = require('./io');
 
 const depthFirst = (node, nodeCallback, isRoot = true) => {
   if (!isRoot) {
@@ -26,8 +20,6 @@ const depthFirstSequence = (tree) => {
   depthFirst(tree, appendNode);
   return nodeSeq;
 }
-
-const stripWhiteSpace = str => str.replace(/\s+/g, '');
 
 const getBodyType = body => typeof body.type === 'string' ? JSON.parse(body.type) : body.type;
 
@@ -52,36 +44,30 @@ const resourceSeqToTypesSeq = resSeq => {
     .reduce(responseReducer, []);
 }
 
-const mkdirSync = function (dirPath) {
-  try {
-    fs.mkdirSync(dirPath)
-  } catch (err) {
-    if (err.code !== 'EEXIST') throw err
-  }
-}
-
-const writeFileAsync = promisify(fs.writeFile);
-const outputFilePath = f => path.join(OUTPUT_DIR, `${f}.d.ts`);
-
 const typedefFileName = typeDef => {
-  if (typeDef.title) return stripWhiteSpace(typeDef.title);
-  if (typeDef.id) return stripWhiteSpace(typeDef.id);
+  if (typeDef.title) return utils.stripWhiteSpace(typeDef.title);
+  if (typeDef.id) return utils.stripWhiteSpace(typeDef.id);
   throw new Error(
-    `JSON Schema requires "id" or "title" field to be defined. None were defined in:
+    `JSON Schema requires "title" or "id" field to be defined. None were defined in:
 ${JSON.stringify(typeDef, null, 2)}`);
 }
 
-const generateTSD = typesSeq => {
-  mkdirSync(OUTPUT_DIR);
+const generateTSD = (typesSeq, outputDir, json2tsOptions) => {
+  io.mkdirSync(outputDir);
   return typesSeq.map(typeDef => {
     compile(typeDef, undefined, json2tsOptions)
-      .then(dts => writeFileAsync(outputFilePath(typedefFileName(typeDef)), dts))
+      .then(dts => {
+          const filePath = path.join(outputDir, `${typedefFileName(typeDef)}.d.ts`);
+          return io.writeFileAsync(filePath, dts);
+      })
   });
 }
 
-raml2obj.parse(CONTRACT_FILE)
-  .then(depthFirstSequence)
-  .then(resourceSeqToTypesSeq)
-  .then(generateTSD)
-  .then(() => console.log('TypeScript Definition files generated from RAML Contract.'))
-  .catch(e => console.error('TypeScript Definition generation failed:', e))
+const generateDefinitions = (contractFilePath, outputDir, json2tsOptions = {}) => {
+    return raml2obj.parse(contractFilePath)
+        .then(depthFirstSequence)
+        .then(resourceSeqToTypesSeq)
+        .then(data => generateTSD(data, outputDir, json2tsOptions))
+}
+
+module.exports = generateDefinitions;

@@ -6,9 +6,36 @@
 
 RAML to TypeScript Definition Files Converter. Uses [`raml2obj`](https://www.npmjs.com/package/raml2obj) and [`json-schema-to-typescript`](https://www.npmjs.com/package/json-schema-to-typescript).
 
+See the [changelog](CHANGELOG.md).
+
+## install
+
+locally:
+
+    npm install --save raml-to-typescript
+
+globally:
+
+    npm install -g raml-to-typescript
+
 ## usage
 
-    node index.js --input example-contract/geo.raml --output example-tds
+as a CLI tool:
+
+    raml2ts -i example-contract/geo.raml -o example-dts
+
+as a library:
+
+```js
+const raml2ts = require('raml-to-typescript');
+raml2ts.generateDefinitions(contractFilePath, outputDir)
+  .then(successCb)
+  .catch(errorCb)
+// or
+raml2ts.generateDefinitions(contractFilePath, outputDir, json2tsOptions)
+  .then(successCb)
+  .catch(errorCb)
+```
 
 ## example
 
@@ -21,14 +48,14 @@ title: Example Service
 /geo:
 
 /countries:
-    description: |
+  description: |
     Collection of all countries.
-    get:
+  get:
     description: Fetch collection of countries
     responses:
-        200:
+      200:
         body:
-            application/json:
+          application/json:
             type: !include countries.schema.json
 ```
 
@@ -83,5 +110,3 @@ Currently, only JSON Schema files are supported (RAML-defined types are not yet 
 ## todos
 
  * include request schemas as well as response schemas
- * provide a CLI file: raml-to-typescript api.raml
- * separate lib from CLI

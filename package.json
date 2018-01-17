@@ -1,16 +1,23 @@
 {
   "name": "raml-to-typescript",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "RAML to TypeScript Definition Files Converter",
   "author": "Tomasz Ducin <tomasz@ducin.it>",
   "license": "MIT",
-  "main": "index.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node index.js --input example-contract/geo.raml --output example-dts"
+  },
+  "bin": {
+    "raml2ts": "bin/raml2ts.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ducin/raml-to-typescript.git"
   },
   "dependencies": {
-    "json-schema-to-typescript": "^5.2.2",
+    "json-schema-to-typescript": "^5.3.2",
+    "promisify-node": "^0.4.0",
     "raml2obj": "^5.9.0",
     "yargs": "^10.1.1"
   },
